@@ -1,10 +1,14 @@
 package com.example.josedanilo.listenme;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -21,11 +25,11 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private int count,i,TRACK_Column,ID_Column,DATA_Column,YEAR_Column;
-    private int DURATION_Column,ALBUM_ID_Column,ALBUM_Column,ARTIST_Column;
+    private int count, i, TRACK_Column, ID_Column, DATA_Column, YEAR_Column;
+    private int DURATION_Column, ALBUM_ID_Column, ALBUM_Column, ARTIST_Column;
     private int[] idMusic;
-    TextView title,artist;
-    private String[] audioLista,artistLista,arrPath;
+    TextView title, artist;
+    private String[] audioLista, artistLista, arrPath;
     ListView Lista;
 
     @Override
@@ -33,8 +37,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+      /*  if ((ContextCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                || (ContextCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED))
 
-        String[] information= {
+        {
+            ActivityCompat.requestPermissions
+                    (MainActivity.this, new String[]{
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    }, 1);
+*/
+
+        String[] information = {
                 MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.DATA,
                 MediaStore.Audio.Media.TRACK,
@@ -51,13 +67,18 @@ public class MainActivity extends AppCompatActivity {
 
         final String orderBy = MediaStore.Audio.Media._ID;  //EXTERNAL_CONTENT_URI para el volumen de almacenamiento
         Cursor audioCursor = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                information, null, null , orderBy);
+                information, null, null, orderBy);
 
         Lista = (ListView) findViewById(R.id.ListView_Lista);
 
         audioCursor();
 
+        AudioAdapter audioAdapter = new AudioAdapter();
+
+        Lista.setAdapter(audioAdapter);
+
     }
+/*}*/
 
     private void audioCursor(){
 
@@ -125,12 +146,21 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public long getItemId(int i) {
-            return 0;
+            return i;
         }
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
-            return null;
+           view = inflater.inflate(R.layout.rows,null);
+            title = (TextView) view.findViewById(R.id.TextView_Tilte);
+            artist = (TextView) view.findViewById(R.id.textView_Artis);
+
+            title.setId(i);
+            artist.setId(i);
+
+            title.setText(audioLista[i]);
+            artist.setText(artistLista[i]);
+            return view;
         }
     }
 
